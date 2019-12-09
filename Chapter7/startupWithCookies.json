@@ -1,5 +1,18 @@
 [
   {
+    "description":"这是一个会返回cookies信息的get请求",
+    "request":{
+      "uri":"/getcookies",
+      "method":"get"
+    },
+    "response": {
+      "cookies":{
+        "login":"true"
+      },
+      "test":"恭喜你获得cookies信息成功"
+    }
+  },
+  {
     "description":"这是一个带cookies信息的get请求",
     "request":{
       "uri":"/get/with/cookies",
