@@ -17,8 +17,9 @@ import java.util.ResourceBundle;
 
 public class MyCookiesForGet {
 
-    private String url;
-    private ResourceBundle bundle;
+    private String url;                 //用来存放登录url
+    private ResourceBundle bundle;      //针对不同语言所使用的属性
+    private CookieStore store;          //用来存储cookies信息的变量
 
     @BeforeTest
     public void beforeTest(){
@@ -38,12 +39,12 @@ public class MyCookiesForGet {
         HttpGet get = new HttpGet(testUrl);
         DefaultHttpClient client = new DefaultHttpClient();
         HttpResponse response = client.execute(get);
-        result = EntityUtils.toString(response.getEntity(),"utf-8");
+        result = EntityUtils.toString(response.getEntity(),"utf-8");        //EntityUtils对象是org.apache.http.util下的一个工具类
         /*System.out.println(result);*/
         System.out.println(result);
 
         //获取cookies信息
-        CookieStore store = client.getCookieStore();
+        this.store = client.getCookieStore();
         //将cookie信息放入List集合中
         List<Cookie> cookieList = store.getCookies();
         //遍历cookie信息
@@ -51,6 +52,29 @@ public class MyCookiesForGet {
             String name = cookie.getName();
             String value = cookie.getValue();
             System.out.println("cookie name = " + name + ";cookie value = " + value);
+        }
+    }
+
+    @Test(dependsOnMethods = "testGetCookies")
+    public void testGetWithCookies() throws IOException{
+        //从配置文件中 拼接测试的url
+        String uri = bundle.getString("test.get.with.cookies");
+        String testUrl = this.url+uri;
+        //将拼接的url放入HttpGet中
+        HttpGet get = new HttpGet(testUrl);
+        DefaultHttpClient client = new DefaultHttpClient();
+        //设置cookie信息
+        client.setCookieStore(this.store);
+        //将cookie信息放入响应中
+        HttpResponse response = client.execute(get);
+        //获取响应的状态码
+        int statusCode = response.getStatusLine().getStatusCode();
+        //对状态码进行判断
+        if(statusCode == 200){
+            String result = EntityUtils.toString(response.getEntity());
+            System.out.println(result);
+        }else{
+            System.out.println("获取cookies失败！！！");
         }
     }
 }
